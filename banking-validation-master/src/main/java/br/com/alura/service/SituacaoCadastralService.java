@@ -14,21 +14,22 @@ import java.util.List;
 public class SituacaoCadastralService {
 
     private final SituacaoCadastralRepository repository;
-    private final Emitter<Audit> emitter;
+
 
     public SituacaoCadastralService(SituacaoCadastralRepository repository,
                                     @Channel("notificacoes") Emitter<Audit> emitter) {
         this.repository = repository;
-        this.emitter = emitter;
+//        this.emitter = emitter;
     }
 
     @Transactional
-    public void alterar(Agencia agencia) {
+    public Agencia alterar(Agencia agencia) {
         if (this.buscarPorCnpj(agencia.getCnpj()) != null) {
             repository.update("situacaoCadastral = ?1 where cnpj = ?2",
                     agencia.getSituacaoCadastral(), agencia.getCnpj());
-            emitter.send(new Audit(agencia.getId(), agencia.getCnpj(), agencia.getSituacaoCadastral()));
+            return agencia;
         }
+        return null;
     }
 
     @Transactional

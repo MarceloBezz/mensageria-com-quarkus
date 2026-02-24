@@ -1,5 +1,6 @@
 package br.com.alura.controller;
 
+import br.com.alura.domain.Audit;
 import br.com.alura.service.SituacaoCadastralService;
 import br.com.alura.domain.Agencia;
 import io.smallrye.mutiny.Multi;
@@ -9,6 +10,8 @@ import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
+import org.eclipse.microprofile.reactive.messaging.Channel;
+import org.eclipse.microprofile.reactive.messaging.Emitter;
 import org.jboss.resteasy.reactive.RestResponse;
 
 import java.util.List;
@@ -17,9 +20,11 @@ import java.util.List;
 public class SituacaoCadastralController {
 
     private final SituacaoCadastralService service;
+    private final Emitter<Audit> emitter;
 
-    SituacaoCadastralController(SituacaoCadastralService situacaoCadastralService) {
+    SituacaoCadastralController(SituacaoCadastralService situacaoCadastralService, @Channel("notificacoes") Emitter<Audit> emitter) {
         this.service = situacaoCadastralService;
+        this.emitter = emitter;
     }
 
     @POST
@@ -47,7 +52,10 @@ public class SituacaoCadastralController {
 
     @PUT
     public RestResponse<String> atualizar(Agencia agencia) {
-        service.alterar(agencia);
+        Agencia ag = service.alterar(agencia);
+        if (ag != null) {
+            emitter.send(new Audit(agencia.getId(), agencia.getCnpj(), agencia.getSituacaoCadastral()));
+        }
         return RestResponse.ok("Agência alterada com sucesso!");
     }
 }
