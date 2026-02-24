@@ -5,9 +5,7 @@ import jakarta.persistence.*;
 @Entity
 public class Agencia {
 
-    Agencia() {
-
-    }
+    Agencia() {}
 
     Agencia(Integer id, String nome, String razaoSocial, String cnpj, String situacaoCadastral) {
         this.id = id;

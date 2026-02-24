@@ -4,8 +4,11 @@ import br.com.alura.repository.SituacaoCadastralRepository;
 import br.com.alura.domain.Agencia;
 import br.com.alura.domain.Audit;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.transaction.Transactional;
 import org.eclipse.microprofile.reactive.messaging.Channel;
 import org.eclipse.microprofile.reactive.messaging.Emitter;
+
+import java.util.List;
 
 @ApplicationScoped
 public class SituacaoCadastralService {
@@ -19,8 +22,25 @@ public class SituacaoCadastralService {
         this.emitter = emitter;
     }
 
+    @Transactional
     public void alterar(Agencia agencia) {
         repository.update("situacaoCadastral = ?1 where cnpj = ?2",
                         agencia.getSituacaoCadastral(), agencia.getCnpj());
+    }
+
+    @Transactional
+    public void cadastrar(Agencia agencia) {
+        repository.persist(agencia);
+    }
+
+    public List<Agencia> buscaTodos() {
+        return repository
+                .findAll()
+                .stream()
+                .toList();
+    }
+
+    public Agencia buscarPorCnpj(String cnpj) {
+        return repository.findByCnpj(cnpj);
     }
 }

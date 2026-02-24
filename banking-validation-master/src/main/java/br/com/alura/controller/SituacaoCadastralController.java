@@ -1,8 +1,9 @@
 package br.com.alura.controller;
 
-import br.com.alura.repository.SituacaoCadastralRepository;
 import br.com.alura.service.SituacaoCadastralService;
 import br.com.alura.domain.Agencia;
+import io.smallrye.mutiny.Multi;
+import io.smallrye.mutiny.Uni;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
@@ -15,29 +16,29 @@ import java.util.List;
 @Path("/situacao-cadastral")
 public class SituacaoCadastralController {
 
-    private final SituacaoCadastralRepository situacaoCadastralRepository;
-    private final SituacaoCadastralService situacaoCadastralService;
+    private final SituacaoCadastralService service;
 
-    SituacaoCadastralController(SituacaoCadastralRepository situacaoCadastralRepository, SituacaoCadastralService situacaoCadastralService) {
-        this.situacaoCadastralRepository = situacaoCadastralRepository;
-        this.situacaoCadastralService = situacaoCadastralService;
+    SituacaoCadastralController(SituacaoCadastralService situacaoCadastralService) {
+        this.service = situacaoCadastralService;
     }
 
     @POST
     @Transactional
-    public void cadastrar(Agencia agencia) {
-        this.situacaoCadastralRepository.persist(agencia);
+    public RestResponse<Agencia> cadastrar(Agencia agencia) {
+        service.cadastrar(agencia);
+        return RestResponse.ok(agencia);
     }
 
     @GET
-    public List<Agencia> buscarTodos() {
-        return this.situacaoCadastralRepository.findAll().stream().toList();
+    public RestResponse<List<Agencia>> buscarTodos() {
+        var agencias = service.buscaTodos();
+        return  RestResponse.ok(agencias);
     }
 
     @GET
     @Path("{cnpj}")
-    public RestResponse<Agencia> buscarPorCnpj(String cnpj) {
-        Agencia agencia = this.situacaoCadastralRepository.findByCnpj(cnpj);
+    public RestResponse<Object> buscarPorCnpj(String cnpj) {
+        Agencia agencia = service.buscarPorCnpj(cnpj);
         if (agencia != null) {
             return RestResponse.ok(agencia);
         }
@@ -46,7 +47,7 @@ public class SituacaoCadastralController {
 
     @PUT
     public RestResponse<String> atualizar(Agencia agencia) {
-        situacaoCadastralService.alterar(agencia);
+        service.alterar(agencia);
         return RestResponse.ok("Agência alterada com sucesso!");
     }
 }
