@@ -24,8 +24,11 @@ public class SituacaoCadastralService {
 
     @Transactional
     public void alterar(Agencia agencia) {
-        repository.update("situacaoCadastral = ?1 where cnpj = ?2",
-                        agencia.getSituacaoCadastral(), agencia.getCnpj());
+        if (this.buscarPorCnpj(agencia.getCnpj()) != null) {
+            repository.update("situacaoCadastral = ?1 where cnpj = ?2",
+                    agencia.getSituacaoCadastral(), agencia.getCnpj());
+            emitter.send(new Audit(agencia.getId(), agencia.getCnpj(), agencia.getSituacaoCadastral()));
+        }
     }
 
     @Transactional
