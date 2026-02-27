@@ -3,8 +3,10 @@ package br.com.alura.controller;
 import br.com.alura.domain.Audit;
 import br.com.alura.service.SituacaoCadastralService;
 import br.com.alura.domain.Agencia;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.Uni;
+import io.smallrye.reactive.messaging.MutinyEmitter;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
@@ -21,10 +23,16 @@ public class SituacaoCadastralController {
 
     private final SituacaoCadastralService service;
     private final Emitter<Audit> emitter;
+    private final MutinyEmitter<String> mutiniEmitter;
+    private final ObjectMapper objectMapper;
 
-    SituacaoCadastralController(SituacaoCadastralService situacaoCadastralService, @Channel("notificacoes") Emitter<Audit> emitter) {
+    SituacaoCadastralController(SituacaoCadastralService situacaoCadastralService,
+                                @Channel("notificacoes") Emitter<Audit> emitter,
+                                @Channel("remover-agencia-channel") MutinyEmitter<String> mutiniEmitter, ObjectMapper objectMapper) {
         this.service = situacaoCadastralService;
         this.emitter = emitter;
+        this.mutiniEmitter = mutiniEmitter;
+        this.objectMapper = objectMapper;
     }
 
     @POST
@@ -37,7 +45,7 @@ public class SituacaoCadastralController {
     @GET
     public RestResponse<List<Agencia>> buscarTodos() {
         var agencias = service.buscaTodos();
-        return  RestResponse.ok(agencias);
+        return RestResponse.ok(agencias);
     }
 
     @GET
@@ -55,7 +63,22 @@ public class SituacaoCadastralController {
         Agencia ag = service.alterar(agencia);
         if (ag != null) {
             emitter.send(new Audit(agencia.getId(), agencia.getCnpj(), agencia.getSituacaoCadastral()));
+            try {
+                if (agencia.getSituacaoCadastral().equals("INATIVO")) {
+//                    mutiniEmitter.send(objectMapper.writeValueAsString(ag));
+                    mutiniEmitter.send(objectMapper.writeValueAsString(ag)).subscribe().with(
+                            success -> System.out.println("Enviado"),
+                            failure -> System.out.println("Erro: " + failure)
+                    );
+                }
+
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+                return RestResponse.status(500);
+            }
+            return RestResponse.ok("Agência alterada com sucesso!");
         }
-        return RestResponse.ok("Agência alterada com sucesso!");
+
+        return RestResponse.status(500);
     }
 }
