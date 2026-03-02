@@ -1,4 +1,7 @@
-import com.fasterxml.jackson.databind.ObjectMapper;
+package service;
+
+import br.com.alura.Agencia;
+import domain.AgenciaMensagem;
 import io.quarkus.hibernate.reactive.panache.common.WithTransaction;
 import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -7,18 +10,17 @@ import org.eclipse.microprofile.reactive.messaging.Incoming;
 @ApplicationScoped
 public class RemoverAgenciaService {
     private final AgenciaService agenciaService;
-    private final ObjectMapper objectMapper;
 
-    public RemoverAgenciaService(AgenciaService agenciaService, ObjectMapper objectMapper) {
+    public RemoverAgenciaService(AgenciaService agenciaService) {
         this.agenciaService = agenciaService;
-        this.objectMapper = objectMapper;
     }
 
     @WithTransaction
     @Incoming("remover-agencia-channel")
-    public Uni<Void> consumirMensagem(String mensagem) {
+    public Uni<Void> consumirMensagem(Agencia mensagem) {
         try {
-            var agenciaMensagem = objectMapper.readValue(mensagem, AgenciaMensagem.class);
+            AgenciaMensagem agenciaMensagem =
+                    new AgenciaMensagem(1, mensagem.getNome(), mensagem.getRazaoSocial(), mensagem.getCnpj(), mensagem.getSituacaoCadastral());
             return agenciaService.buscarPorCnpj(agenciaMensagem.getCnpj())
                     .onItem().ifNotNull().transformToUni(agencia -> agenciaService.deletar(agencia.getId()))
                     .replaceWithVoid();

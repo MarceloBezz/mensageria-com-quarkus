@@ -1,3 +1,5 @@
+package domain;
+
 public class AgenciaMensagem {
 
     private Integer id;

@@ -1,6 +1,12 @@
+package service;
+
+import domain.Agencia;
 import io.quarkus.hibernate.reactive.panache.common.WithSession;
 import io.smallrye.mutiny.Uni;
+import jakarta.enterprise.context.ApplicationScoped;
+import repository.AgenciaRepository;
 
+@ApplicationScoped
 public class AgenciaService {
     private final AgenciaRepository agenciaRepository;
 

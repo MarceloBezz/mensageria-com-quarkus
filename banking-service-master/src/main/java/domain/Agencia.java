@@ -1,3 +1,5 @@
+package domain;
+
 import jakarta.persistence.*;
 
 @Entity
