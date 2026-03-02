@@ -3,9 +3,6 @@ package br.com.alura.controller;
 import br.com.alura.domain.Audit;
 import br.com.alura.service.SituacaoCadastralService;
 import br.com.alura.domain.Agencia;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import io.smallrye.mutiny.Multi;
-import io.smallrye.mutiny.Uni;
 import io.smallrye.reactive.messaging.MutinyEmitter;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.GET;
@@ -23,16 +20,14 @@ public class SituacaoCadastralController {
 
     private final SituacaoCadastralService service;
     private final Emitter<Audit> emitter;
-    private final MutinyEmitter<String> mutiniEmitter;
-    private final ObjectMapper objectMapper;
+    private final MutinyEmitter<br.com.alura.Agencia> mutiniEmitter;
 
     SituacaoCadastralController(SituacaoCadastralService situacaoCadastralService,
                                 @Channel("notificacoes") Emitter<Audit> emitter,
-                                @Channel("remover-agencia-channel") MutinyEmitter<String> mutiniEmitter, ObjectMapper objectMapper) {
+                                @Channel("remover-agencia-channel") MutinyEmitter<br.com.alura.Agencia> mutiniEmitter) {
         this.service = situacaoCadastralService;
         this.emitter = emitter;
         this.mutiniEmitter = mutiniEmitter;
-        this.objectMapper = objectMapper;
     }
 
     @POST
@@ -65,8 +60,9 @@ public class SituacaoCadastralController {
             emitter.send(new Audit(agencia.getId(), agencia.getCnpj(), agencia.getSituacaoCadastral()));
             try {
                 if (agencia.getSituacaoCadastral().equals("INATIVO")) {
-//                    mutiniEmitter.send(objectMapper.writeValueAsString(ag));
-                    mutiniEmitter.send(objectMapper.writeValueAsString(ag)).subscribe().with(
+                    mutiniEmitter
+                            .send(new br.com.alura.Agencia(ag.getNome(), ag.getRazaoSocial(), ag.getCnpj(), ag.getSituacaoCadastral()))
+                            .subscribe().with(
                             success -> System.out.println("Enviado"),
                             failure -> System.out.println("Erro: " + failure)
                     );
