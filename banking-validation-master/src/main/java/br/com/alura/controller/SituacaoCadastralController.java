@@ -63,6 +63,7 @@ public class SituacaoCadastralController {
     }
 
     @PUT
+    @Transactional
     public RestResponse<String> atualizar(Agencia agencia) {
         Agencia ag = service.alterar(agencia);
         if (ag != null) {
@@ -74,7 +75,7 @@ public class SituacaoCadastralController {
                             objectMapper.writeValueAsString(agencia),
                             SagaStatus.OPEN,
                             LocalDateTime.now()));
-                    
+
                     mutiniEmitter
                             .send(new br.com.alura.Agencia(ag.getNome(), ag.getRazaoSocial(), ag.getCnpj(), ag.getSituacaoCadastral()))
                             .subscribe().with(

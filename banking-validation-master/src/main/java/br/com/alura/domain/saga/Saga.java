@@ -7,15 +7,18 @@ import java.time.LocalDateTime;
 @Entity
 public class Saga {
     @Id
-    private final String id;
+    private String id;
 
-    private final String entidade;
+    private String entidade;
 
     @Enumerated(EnumType.STRING)
-    private final SagaStatus status;
+    private SagaStatus status;
 
     @Column(name = "created_at")
-    private final LocalDateTime createdAt;
+    private LocalDateTime createdAt;
+
+    public Saga() {
+    }
 
     public Saga(String id, String entidade, SagaStatus status, LocalDateTime createdAt) {
         this.id = id;
