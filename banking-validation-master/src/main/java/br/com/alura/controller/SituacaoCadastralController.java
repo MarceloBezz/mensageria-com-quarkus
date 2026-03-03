@@ -78,10 +78,11 @@ public class SituacaoCadastralController {
 
                     mutiniEmitter
                             .send(new br.com.alura.Agencia(ag.getNome(), ag.getRazaoSocial(), ag.getCnpj(), ag.getSituacaoCadastral()))
-                            .subscribe().with(
-                            success -> System.out.println("Enviado"),
-                            failure -> System.out.println("Erro: " + failure)
-                    );
+//                            .subscribe().with(
+//                            success -> System.out.println("Enviado"),
+//                            failure -> System.out.println("Erro: " + failure))
+                            .await().indefinitely()
+                    ;
                 }
 
             } catch (Exception e) {

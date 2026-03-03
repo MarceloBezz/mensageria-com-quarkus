@@ -20,9 +20,9 @@ public class SituacaoCadastralService {
         this.repository = repository;
     }
 
-    @Transactional
+//    @Transactional
     public Agencia alterar(Agencia agencia) {
-        if (this.buscarPorCnpj(agencia.getCnpj()) != null) {
+        if (repository.findByCnpj(agencia.getCnpj()) != null) {
             repository.update("situacaoCadastral = ?1 where cnpj = ?2",
                     agencia.getSituacaoCadastral(), agencia.getCnpj());
             return agencia;

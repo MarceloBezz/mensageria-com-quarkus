@@ -1,0 +1,12 @@
+services:
+  postgres-service-db-alura:
+    image: postgres:14
+    container_name: postgres-service-db-alura-container
+    environment:
+      - POSTGRES_USER=joao
+      - POSTGRES_PASSWORD=joao
+      - POSTGRES_DB=agencia
+    ports:
+      - 5433:5432
+    volumes:
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
