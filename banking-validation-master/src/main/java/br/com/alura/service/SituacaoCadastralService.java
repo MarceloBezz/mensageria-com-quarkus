@@ -1,8 +1,9 @@
 package br.com.alura.service;
 
+import br.com.alura.repository.SagaRepository;
 import br.com.alura.repository.SituacaoCadastralRepository;
 import br.com.alura.domain.Agencia;
-import br.com.alura.domain.Audit;
+import br.com.alura.domain.audit.Audit;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.transaction.Transactional;
 import org.eclipse.microprofile.reactive.messaging.Channel;
@@ -15,11 +16,8 @@ public class SituacaoCadastralService {
 
     private final SituacaoCadastralRepository repository;
 
-
-    public SituacaoCadastralService(SituacaoCadastralRepository repository,
-                                    @Channel("notificacoes") Emitter<Audit> emitter) {
+    public SituacaoCadastralService(SituacaoCadastralRepository repository) {
         this.repository = repository;
-//        this.emitter = emitter;
     }
 
     @Transactional

@@ -1,4 +1,4 @@
-package br.com.alura.domain;
+package br.com.alura.domain.audit;
 
 public class Audit {
     private Integer id;
